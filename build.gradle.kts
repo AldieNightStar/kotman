@@ -1,28 +1,28 @@
-import java.net.URI
-
 val MAIN_CLASS = "haxidenti.kotman.MainKt"
+val PROJECT_NAME = "kotman"
+val AUTHOR = "HaxiDenti"
+val VERSION = "1.0.0"
 
 plugins {
     kotlin("jvm") version "1.9.20"
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("application")
-    
+
 }
 
-group = "HaxiDenti"
-version = "1.0.0"
+group = AUTHOR
+version = VERSION
 
 repositories {
     mavenCentral()
     mavenLocal()
-    maven { url = URI("https://jitpack.io") }
-    
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
-    
     implementation(kotlin("stdlib-jdk8"))
+    implementation("com.google.code.gson:gson:2.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
@@ -61,9 +61,9 @@ tasks.test {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "HaxiDenti"
-            artifactId = "kotman"
-            version = "1.0.0"
+            groupId = AUTHOR
+            artifactId = PROJECT_NAME
+            version = VERSION
             
             from(components["java"])
         }
