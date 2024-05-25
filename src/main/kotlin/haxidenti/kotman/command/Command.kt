@@ -80,6 +80,8 @@ internal object Command {
         kotman config author [name]       - Set new author for future projects
         kotman config version [version]   - Set new version for future projects
         kotman config kotlinver [version] - Set new kotlin version for future projects
+        
+        HaxiDenti
     """.trimIndent()
 
     private fun List<String>.req(n: Int): List<String> {
