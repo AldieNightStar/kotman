@@ -1,6 +1,7 @@
-package haxidenti.kotman.util
+package haxidenti.kotman
 
 import haxidenti.kotman.dto.ProjectDetails
+import haxidenti.kotman.util.Gradle
 import haxidenti.kotman.util.ProjectUtil.addFile
 import haxidenti.kotman.util.ProjectUtil.generateScript
 import haxidenti.kotman.util.ProjectUtil.gitIgnore
@@ -21,6 +22,7 @@ object Project {
 
 
         val mainClassFolderPath = projectDir.mkdirMust("src/main/kotlin/$packagePath")
+        projectDir.mkdirMust("src/main/resources/$packagePath")
         projectDir.mkdirMust("src/test/kotlin/$packagePath")
 
         // Write Main.kt file (Main class)

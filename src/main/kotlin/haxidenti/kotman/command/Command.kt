@@ -3,7 +3,7 @@ package haxidenti.kotman.command
 import haxidenti.kotman.Configuration
 import haxidenti.kotman.command.ConfigCommand.dispatchConfig
 import haxidenti.kotman.dto.ProjectDetails
-import haxidenti.kotman.util.Project
+import haxidenti.kotman.Project
 import java.io.File
 
 internal object Command {

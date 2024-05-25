@@ -22,11 +22,6 @@ object Gradle {
         rootProject.name = "$projectName"
     """.trimIndent()
 
-    fun currentFolderHasGradle(projectFolder: File): Boolean {
-        return (projectFolder.list() ?: return false)
-            .count { it.startsWith("gradlew") } > 0
-    }
-
     fun generateProjectGradle(details: ProjectDetails): String {
         val mainClass = getMainClassName(details.packageName)
         val lines = mutableListOf<String>()
