@@ -38,4 +38,11 @@ internal object ProjectUtil {
         /.idea/
         /.gradle/
     """.trimIndent()
+
+    fun packageFolder(projectFolder: File, packageName: String): File {
+        val packagePath = packageName.replace(".", "/")
+        val folder = projectFolder.resolve("src/main/kotlin/$packagePath").canonicalFile
+        if (!folder.isDirectory) throw IllegalStateException("Package $packageName has no folder in the kotlin project")
+        return folder
+    }
 }

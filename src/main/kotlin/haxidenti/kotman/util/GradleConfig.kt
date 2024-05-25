@@ -1,5 +1,7 @@
 package haxidenti.kotman.util
 
+import haxidenti.kotman.dto.DependencyInfo
+import haxidenti.kotman.util.DependencyUtil.readDependencyString
 import java.io.File
 
 @JvmInline
@@ -40,6 +42,73 @@ value class GradleConfig(val gradleFile: File) {
                 continue
             } else {
                 // If name is not present then this line is just added to others
+                newLines.add(line)
+            }
+        }
+
+        gradleFile.writeText(newLines.joinToString("\n"))
+    }
+
+    fun readDependencies(): List<DependencyInfo> {
+        val src = gradleFile.readText()
+        var foundDependencies = false
+        val list = mutableListOf<DependencyInfo>()
+        for (line in src.lines()) {
+            val trimmedLine = line.trim()
+            if (foundDependencies) {
+
+                // Stop reading dependencies if seeing this line
+                if (trimmedLine == "}") break
+
+                val dep = readDependencyString(trimmedLine)
+                if (dep != null) {
+                    list.add(dep)
+                }
+
+            } else {
+                if (trimmedLine.startsWith("dependencies {")) {
+                    foundDependencies = true
+                }
+            }
+        }
+
+        return list
+    }
+
+    fun addDependencies(list: List<String>) {
+        val src = gradleFile.readText()
+        var foundDependencies = false
+        var newLines = mutableListOf<String>()
+
+        for (line in src.lines()) {
+            val trimmedLine = line.trim()
+            if (foundDependencies) {
+
+                // When this is end of dependencies
+                // Here we are going to add new dependencies
+                if (trimmedLine == "}") {
+
+                    // Add all dependencies
+                    list
+                        .map { "    implementation(\"$it\")" }
+                        .forEach { newLines.add(it) }
+
+                    // Add ending line
+                    newLines.add(line)
+
+                    // Set dependencies as not found to continue to add all lines
+                    foundDependencies = false
+                    continue
+                }
+
+                // When dependencies is not ended yet
+                newLines.add(line)
+
+            } else {
+                // When found dependencies section
+                if (trimmedLine == "dependencies {") {
+                    foundDependencies = true
+                }
                 newLines.add(line)
             }
         }

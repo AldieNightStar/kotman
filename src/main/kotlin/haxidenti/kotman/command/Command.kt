@@ -37,6 +37,17 @@ internal object Command {
                     println("OK")
                 }
 
+                "deps" -> {
+                    val deps = Project.readDependencies(File("."), false)
+                    deps.forEach { println(it) }
+                }
+
+                "add" -> {
+                    val (dependency) = arguments.req(1)
+                    Project.addDependencies(File("."), listOf(dependency))
+                    println("OK")
+                }
+
                 else -> {
                     println("WRONG COMMAND\n")
                     println(usage())
@@ -53,6 +64,9 @@ internal object Command {
         kotman new [name] [package]       - Create new project
         kotman cli                        - Create CLI for your project
         kotman ver [version]              - Change project gradle version
+        
+        kotman deps                       - Show project dependencies
+        kotman add                        - Add dependency to the project
         
         -- CONFIGURATION --
         kotman config                     - Read already set configuration

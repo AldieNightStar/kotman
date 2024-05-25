@@ -32,13 +32,15 @@ object Project {
             throw IllegalStateException("Can't create Main class. Something wrong")
         }
 
-        mainKtFile.writeText("""
+        mainKtFile.writeText(
+            """
             package ${details.packageName};
             
             fun main() {
                 println("Hello, Kotlin");
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
     }
 
@@ -83,5 +85,18 @@ object Project {
         if (!values.containsKey("VERSION")) throw IllegalStateException("VERSION is absent to modify")
         values["VERSION"] = newVersion
         config.writeValues(values)
+    }
+
+    fun readDependencies(projectFolder: File, includeTesting: Boolean): List<String> {
+        val config = projectFolder.gradleConfig()
+        return config.readDependencies()
+            // If include testing then no filter (all is "true") and if without testing then "!it.testing"
+            .filter { if (includeTesting) true else !it.testing }
+            .map { it.toString() }
+    }
+
+    fun addDependencies(projectFolder: File, deps: List<String>) {
+        val config = projectFolder.gradleConfig()
+        config.addDependencies(deps)
     }
 }
