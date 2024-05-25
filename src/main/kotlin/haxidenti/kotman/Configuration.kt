@@ -16,7 +16,7 @@ class Configuration : Closeable {
     val userConfig: UserConfiguration
 
     constructor() {
-        val home = FileSystemView.getFileSystemView().homeDirectory
+        val home = if (Sys.isWindows()) System.getenv("USERPROFILE") else System.getenv("HOME")
         configFile = File(home, "kotman.json")
 
         if (configFile.isFile) {
