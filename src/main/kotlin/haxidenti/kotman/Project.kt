@@ -7,6 +7,7 @@ import haxidenti.kotman.util.ProjectUtil.generateScript
 import haxidenti.kotman.util.ProjectUtil.gitIgnore
 import haxidenti.kotman.util.ProjectUtil.gradleConfig
 import haxidenti.kotman.util.ProjectUtil.mkdirMust
+import haxidenti.kotman.util.createZip
 import java.io.File
 
 object Project {
@@ -119,5 +120,32 @@ object Project {
                 }
             }
         }
+    }
+
+    fun runDist(projectFolder: File) {
+        val config = projectFolder.gradleConfig().readValues()
+        val projectName = config["PROJECT_NAME"] ?: throw IllegalStateException("No PROJECT_NAME found in gradle")
+        val projectVersion = config["VERSION"] ?: throw IllegalStateException("No VERSION found in gradle")
+
+        val list = projectFolder.listFiles() ?: throw IllegalStateException("No files to distribute")
+        val outZipName = "${projectName}_${projectVersion}.zip"
+
+        if (list.count { it.extension == "jar" } < 1) {
+            throw IllegalStateException("No jar files found in the root. Please use \"kotman cli\" to build")
+        }
+
+        val filteredList = list
+            .asSequence()
+            .filter { !it.name.startsWith(".") }
+            .filter { it.name != "build" }
+            .filter { it.name != "src" }
+            .filter { it.name != "gradle" }
+            .filter { !it.name.startsWith("gradle") }
+            .filter { !it.name.endsWith(".gradle.kts") }
+            .filter { it.name != outZipName }
+            .toList()
+            .also { if (it.isEmpty()) throw IllegalStateException("No files to distribute") }
+
+        createZip(projectFolder, filteredList, File("$projectName.zip"))
     }
 }

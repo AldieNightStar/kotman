@@ -53,6 +53,11 @@ internal object Command {
                     println("OK")
                 }
 
+                "dist" -> {
+                    Project.runDist(File("."))
+                    println("OK")
+                }
+
                 else -> {
                     println("WRONG COMMAND\n")
                     println(usage())
@@ -74,6 +79,8 @@ internal object Command {
         kotman add                        - Add dependency to the project
         
         kotman gen                        - Run project code generator. It will scan for "// generate:" comments
+        
+        kotman dist                       - Create zip package that contains files without sources
         
         -- CONFIGURATION --
         kotman config                     - Read already set configuration
