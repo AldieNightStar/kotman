@@ -28,16 +28,4 @@ object GradleUtil {
         // Return result
         return string
     }
-
-    fun readVals(src: String): Map<String, String> {
-        val map = mutableMapOf<String, String>()
-        for (line in src.lines()) {
-            val trimmedLine = line.trim()
-            if (!trimmedLine.startsWith("val ") && !trimmedLine.startsWith("var ")) continue
-            val name = trimmedLine.substring(4).substringBefore(" ")
-            val value = trimmedLine.substringAfter("\"").substringBefore("\"")
-            map[name] = value
-        }
-        return map
-    }
 }

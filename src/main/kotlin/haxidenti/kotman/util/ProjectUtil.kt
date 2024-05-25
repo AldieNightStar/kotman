@@ -1,17 +1,9 @@
 package haxidenti.kotman.util
 
-import haxidenti.kotman.util.GradleUtil.readVals
 import java.io.File
 import java.nio.file.Files
 
 internal object ProjectUtil {
-    fun readProjectValues(projectFolder: File): Map<String, String> {
-        if (!Gradle.currentFolderHasGradle(projectFolder)) {
-            throw IllegalStateException("This is not a Gradle project or gradle wrapper is not initialized yet")
-        }
-        return readVals(projectFolder.gradleFileSrc())
-    }
-
     fun generateScript(jarName: String, mainClassName: String) = """ 
             #!/bin/bash
             SCRIPTPATH="${'$'}( cd -- "${'$'}(dirname "${'$'}0")" >/dev/null 2>&1 ; pwd -P )"
@@ -36,10 +28,10 @@ internal object ProjectUtil {
         return dir.canonicalFile
     }
 
-    fun File.gradleFileSrc(): String {
+    fun File.gradleConfig(): GradleConfig {
         val gradle = File(this, "build.gradle.kts")
         if (!gradle.isFile) throw IllegalStateException("$this has no build.gradle.kts file")
-        return gradle.readText()
+        return GradleConfig(gradle)
     }
 
     fun gitIgnore() = """

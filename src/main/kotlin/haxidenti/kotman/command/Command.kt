@@ -31,6 +31,12 @@ internal object Command {
                     Project.generateCli(File("."))
                 }
 
+                "ver" -> {
+                    val (newVersion) = arguments.req(1)
+                    Project.changeVersion(File("."), newVersion)
+                    println("OK")
+                }
+
                 else -> {
                     println("WRONG COMMAND\n")
                     println(usage())
@@ -46,6 +52,7 @@ internal object Command {
         
         kotman new [name] [package]       - Create new project
         kotman cli                        - Create CLI for your project
+        kotman ver [version]              - Change project gradle version
         
         -- CONFIGURATION --
         kotman config                     - Read already set configuration

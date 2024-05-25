@@ -4,8 +4,8 @@ import haxidenti.kotman.dto.ProjectDetails
 import haxidenti.kotman.util.ProjectUtil.addFile
 import haxidenti.kotman.util.ProjectUtil.generateScript
 import haxidenti.kotman.util.ProjectUtil.gitIgnore
+import haxidenti.kotman.util.ProjectUtil.gradleConfig
 import haxidenti.kotman.util.ProjectUtil.mkdirMust
-import haxidenti.kotman.util.ProjectUtil.readProjectValues
 import java.io.File
 
 object Project {
@@ -41,7 +41,7 @@ object Project {
     }
 
     fun generateCli(projectFolder: File) {
-        val values = readProjectValues(projectFolder)
+        val values = projectFolder.gradleConfig().readValues()
         if (!Gradle.runGradle(File("."), listOf("shadowJar"))) {
             throw IllegalStateException("Can't run shadowJar. Something wrong")
         }
@@ -62,7 +62,7 @@ object Project {
         val jar = libs.walk().firstOrNull { it.nameWithoutExtension.endsWith("-all") }
             ?: throw IllegalStateException("Can't find any built library for cli")
 
-        // Generate jar for root projecrt
+        // Generate jar for root project
         val rootJar = projectFolder.resolve(projectJarName)
 
         // Generate script
@@ -73,5 +73,13 @@ object Project {
 
         rootJar.delete()
         jar.copyTo(rootJar)
+    }
+
+    fun changeVersion(projectFolder: File, newVersion: String) {
+        val config = projectFolder.gradleConfig()
+        val values = config.readValues()
+        if (!values.containsKey("VERSION")) throw IllegalStateException("VERSION is absent to modify")
+        values["VERSION"] = newVersion
+        config.writeValues(values)
     }
 }
