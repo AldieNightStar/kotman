@@ -1,7 +1,12 @@
-package haxidenti.kotman
+package haxidenti.kotman.util
 
+import haxidenti.kotman.dto.ProjectDetails
+import haxidenti.kotman.util.ProjectUtil.addFile
+import haxidenti.kotman.util.ProjectUtil.generateScript
+import haxidenti.kotman.util.ProjectUtil.gitIgnore
+import haxidenti.kotman.util.ProjectUtil.mkdirMust
+import haxidenti.kotman.util.ProjectUtil.readProjectValues
 import java.io.File
-import java.nio.file.Files
 
 object Project {
     fun generate(details: ProjectDetails) {
@@ -69,46 +74,4 @@ object Project {
         rootJar.delete()
         jar.copyTo(rootJar)
     }
-
-    private fun readProjectValues(projectFolder: File): Map<String, String> {
-        if (!Gradle.currentFolderHasGradle(projectFolder)) {
-            throw IllegalStateException("This is not a Gradle project or gradle wrapper is not initialized yet")
-        }
-        return Gradle.readVals(projectFolder.gradleFileSrc())
-    }
-
-    private fun generateScript(jarName: String, mainClassName: String) = """ 
-            #!/bin/bash
-            SCRIPTPATH="${'$'}( cd -- "${'$'}(dirname "${'$'}0")" >/dev/null 2>&1 ; pwd -P )"
-            java -cp "${'$'}SCRIPTPATH/$jarName" $mainClassName "${'$'}@" 
-        """.trimIndent()
-
-    private fun File.addFile(name: String, content: String) {
-        val path = File(this, name).toPath()
-        val bytes = content.toByteArray()
-        try {
-            Files.write(path, bytes)
-        } catch (e: Exception) {
-            throw IllegalStateException("Can't create file $name", e)
-        }
-    }
-
-    private fun File.mkdirMust(path: String): File {
-        val dir = File(this, path)
-        if (!dir.mkdirs()) {
-            throw IllegalStateException("Can't create folder $path")
-        }
-        return dir.canonicalFile
-    }
-
-    private fun File.gradleFileSrc(): String {
-        val gradle = File(this, "build.gradle.kts")
-        if (!gradle.isFile) throw IllegalStateException("$this has no build.gradle.kts file")
-        return gradle.readText()
-    }
-
-    private fun gitIgnore() = """
-        /.idea/
-        /.gradle/
-    """.trimIndent()
 }

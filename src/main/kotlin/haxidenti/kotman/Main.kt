@@ -1,5 +1,7 @@
 package haxidenti.kotman
 
+import haxidenti.kotman.command.Command
+
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
         println(Command.usage())

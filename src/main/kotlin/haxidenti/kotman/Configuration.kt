@@ -1,6 +1,7 @@
 package haxidenti.kotman
 
 import com.google.gson.Gson
+import haxidenti.kotman.dto.UserConfiguration
 import java.io.Closeable
 import java.io.File
 import java.io.FileReader
@@ -33,9 +34,4 @@ class Configuration : Closeable {
     }
 }
 
-data class UserConfiguration(
-    var author: String = "HaxiDenti",
-    var kotlinVer: String = "1.9.20",
-    var projectVersion: String = "1.0.0"
-)
 

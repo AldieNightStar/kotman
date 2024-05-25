@@ -1,4 +1,4 @@
-package haxidenti.kotman
+package haxidenti.kotman.dto
 
 data class ProjectDetails(
     val projectName: String,

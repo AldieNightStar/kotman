@@ -1,11 +1,14 @@
-package haxidenti.kotman
+package haxidenti.kotman.command
 
+import haxidenti.kotman.Configuration
+import haxidenti.kotman.command.ConfigCommand.dispatchConfig
+import haxidenti.kotman.dto.ProjectDetails
+import haxidenti.kotman.util.Project
 import java.io.File
 
-object Command {
+internal object Command {
     fun dispatch(name: String, arguments: List<String>) {
         Configuration().use { c ->
-
 
             when (name) {
                 "help" -> {
@@ -35,7 +38,6 @@ object Command {
                 }
             }
 
-
         }
     }
 
@@ -57,32 +59,5 @@ object Command {
             throw IllegalArgumentException("Argument size if less than $n")
         }
         return this
-    }
-
-    private fun dispatchConfig(c: UserConfiguration, arguments: List<String>) {
-        if (arguments.size < 2) {
-            println("author: ${c.author}")
-            println("version: ${c.projectVersion}")
-            println("kotlinver: ${c.kotlinVer}")
-            return
-        }
-        val (name, value) = arguments
-        when (name) {
-            "author" -> {
-                c.author = value
-            }
-
-            "version" -> {
-                c.projectVersion = value
-            }
-
-            "kotlinver" -> {
-                c.kotlinVer = value
-            }
-
-            else -> {
-                println("Wrong config name")
-            }
-        }
     }
 }

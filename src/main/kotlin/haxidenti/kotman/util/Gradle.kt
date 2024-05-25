@@ -1,7 +1,10 @@
-package haxidenti.kotman
+package haxidenti.kotman.util
 
 import haxidenti.kotman.Sys.isWindows
 import haxidenti.kotman.Sys.runShell
+import haxidenti.kotman.dto.ProjectDetails
+import haxidenti.kotman.util.GradleUtil.genDependenciesSection
+import haxidenti.kotman.util.GradleUtil.genPluginsSection
 import java.io.File
 
 object Gradle {
@@ -38,7 +41,7 @@ object Gradle {
         )
 
         // Add plugins
-        lines.add(genPlugins(details.kotlinVer))
+        lines.add(genPluginsSection(details.kotlinVer))
 
         lines.add(
             """
@@ -54,7 +57,7 @@ object Gradle {
             
             """.trimIndent()
         )
-        lines.add(genDependencies(details.additionalDependencies))
+        lines.add(genDependenciesSection(details.additionalDependencies))
         lines.add(
             """
             
@@ -83,45 +86,5 @@ object Gradle {
         return lines.joinToString("\n")
     }
 
-    private fun genPlugins(kotlinVer: String) = """
-        plugins {
-            kotlin("jvm") version "$kotlinVer"
-            id("com.github.johnrengelman.shadow") version "8.1.1"
-            id("application")
-            `maven-publish`
-        }
-    """.trimIndent()
-
-    private fun genDependencies(additional: List<String>): String {
-        val deps = if (additional.isNotEmpty())
-            ""
-        else
-            "\n    " + additional.joinToString("\n    ")
-
-        // Generate
-        val string = """
-        dependencies {
-            implementation(kotlin("stdlib-jdk8"))
-            testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-            testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")$deps
-        }
-        """.trimIndent()
-
-        // Return result
-        return string
-    }
-
     private fun getMainClassName(packageName: String) = "$packageName.MainKt"
-
-    fun readVals(src: String): Map<String, String> {
-        val map = mutableMapOf<String, String>()
-        for (line in src.lines()) {
-            val trimmedLine = line.trim()
-            if (!trimmedLine.startsWith("val ") && !trimmedLine.startsWith("var ")) continue
-            val name = trimmedLine.substring(4).substringBefore(" ")
-            val value = trimmedLine.substringAfter("\"").substringBefore("\"")
-            map[name] = value
-        }
-        return map
-    }
 }
