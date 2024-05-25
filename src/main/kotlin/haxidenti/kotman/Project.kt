@@ -102,8 +102,10 @@ object Project {
     fun runGenerator(projectFolder: File) {
         val sources = projectFolder.resolve("src")
         if (!sources.isDirectory) throw IllegalStateException("Can't find src folder")
+        val megabyte = 1024 * 1024
         for (file in projectFolder.walkTopDown()) {
             if (!file.isFile) continue
+            if (file.length() > megabyte) continue
             val commands = file.readLines()
                 .map { it.trim() }
                 .filter { it.startsWith("// generate:") }
