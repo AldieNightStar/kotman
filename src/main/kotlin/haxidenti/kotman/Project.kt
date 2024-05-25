@@ -20,7 +20,6 @@ object Project {
 
         projectDir.addFile(".gitignore", gitIgnore())
 
-
         val mainClassFolderPath = projectDir.mkdirMust("src/main/kotlin/$packagePath")
         projectDir.mkdirMust("src/main/resources/$packagePath")
         projectDir.mkdirMust("src/test/kotlin/$packagePath")
@@ -98,5 +97,25 @@ object Project {
     fun addDependencies(projectFolder: File, deps: List<String>) {
         val config = projectFolder.gradleConfig()
         config.addDependencies(deps)
+    }
+
+    fun runGenerator(projectFolder: File) {
+        val sources = projectFolder.resolve("src")
+        if (!sources.isDirectory) throw IllegalStateException("Can't find src folder")
+        for (file in projectFolder.walkTopDown()) {
+            if (!file.isFile) continue
+            val commands = file.readLines()
+                .map { it.trim() }
+                .filter { it.startsWith("// generate:") }
+                .map { it.substring(12).trim() }
+                .filter { it.isNotBlank() }
+            val parent = file.parentFile
+            for (command in commands) {
+                val ok = Sys.runCommand(parent, command)
+                if (!ok) {
+                    throw IllegalStateException("Can't run command \"$command\" :: Something is wrong. File ${file.name}")
+                }
+            }
+        }
     }
 }

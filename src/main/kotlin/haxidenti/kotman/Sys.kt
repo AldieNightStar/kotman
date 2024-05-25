@@ -23,9 +23,16 @@ object Sys {
     }
 
 
-
     fun isWindows() = System
         .getProperty("os.name")
         .lowercase()
         .contains("windows")
+
+    fun runCommand(workingFolder: File, line: String): Boolean {
+        val regex = Regex("(\"[^\"]*\"|[^\\s]+)")
+        val args = regex.findAll(line)
+            .map { it.value.trim() }
+            .toList()
+        return Sys.runShell(workingFolder, args)
+    }
 }

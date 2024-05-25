@@ -48,6 +48,11 @@ internal object Command {
                     println("OK")
                 }
 
+                "gen" -> {
+                    Project.runGenerator(File("."))
+                    println("OK")
+                }
+
                 else -> {
                     println("WRONG COMMAND\n")
                     println(usage())
@@ -67,6 +72,8 @@ internal object Command {
         
         kotman deps                       - Show project dependencies
         kotman add                        - Add dependency to the project
+        
+        kotman gen                        - Run project code generator. It will scan for "// generate:" comments
         
         -- CONFIGURATION --
         kotman config                     - Read already set configuration
