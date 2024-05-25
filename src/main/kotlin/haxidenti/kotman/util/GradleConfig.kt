@@ -19,6 +19,7 @@ value class GradleConfig(val gradleFile: File) {
         return map
     }
 
+    // This method WILL NOT add something new but will change the settings (No values will not be added)
     fun writeValues(values: Map<String, String>) {
         val src = gradleFile.readText()
         val newLines = mutableListOf<String>()
