@@ -34,9 +34,13 @@ internal object ProjectUtil {
         return GradleConfig(gradle)
     }
 
-    fun gitIgnore() = """
-        /.idea/
-        /.gradle/
+    fun gitIgnore(projectName: String) = """
+        /.idea
+        /.gradle
+        /.vscode
+        /build
+        /$projectName
+        /$projectName.jar
     """.trimIndent()
 
     fun packageFolder(projectFolder: File, packageName: String): File {

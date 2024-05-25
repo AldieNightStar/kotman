@@ -19,7 +19,7 @@ object Project {
         projectDir.addFile("build.gradle.kts", Gradle.generateProjectGradle(details))
         projectDir.addFile("settings.gradle.kts", Gradle.generateProjectSettings(details.projectName))
 
-        projectDir.addFile(".gitignore", gitIgnore())
+        projectDir.addFile(".gitignore", gitIgnore(details.projectName))
 
         val mainClassFolderPath = projectDir.mkdirMust("src/main/kotlin/$packagePath")
         projectDir.mkdirMust("src/main/resources/$packagePath")
