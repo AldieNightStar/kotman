@@ -20,4 +20,5 @@ kotman config                     - Read already set configuration
 kotman config author [name]       - Set new author for future projects
 kotman config version [version]   - Set new version for future projects
 kotman config kotlinver [version] - Set new kotlin version for future projects
+kotman config corover [version]   - Set new kotlin coroutines version
 ```
