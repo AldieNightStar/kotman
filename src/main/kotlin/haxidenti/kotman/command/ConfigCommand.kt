@@ -8,6 +8,7 @@ internal object ConfigCommand {
             println("author: ${c.author}")
             println("version: ${c.projectVersion}")
             println("kotlinver: ${c.kotlinVer}")
+            println("corover: ${c.coroutineVer}")
             println("""
                 
                 Usage:
@@ -29,6 +30,10 @@ internal object ConfigCommand {
 
             "kotlinver" -> {
                 c.kotlinVer = value
+            }
+
+            "corover" -> {
+                c.coroutineVer = value
             }
 
             else -> {

@@ -31,6 +31,7 @@ object Gradle {
             val PROJECT_NAME = "${details.projectName}"
             val AUTHOR = "${details.author}"
             val VERSION = "${details.version}"
+            val CORO_VER = "${details.kotlinCoroutineVer}"
             
         """.trimIndent()
         )

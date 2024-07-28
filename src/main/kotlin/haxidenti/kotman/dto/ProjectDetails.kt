@@ -6,7 +6,8 @@ data class ProjectDetails(
     val version: String,
     val packageName: String,
     val kotlinVer: String,
-    val additionalDependencies: List<String>
+    val additionalDependencies: List<String>,
+    val kotlinCoroutineVer: String,
 ) {
     companion object {
         fun fromConfig(projectName: String, packageName: String, conf: UserConfiguration) = ProjectDetails(
@@ -15,7 +16,8 @@ data class ProjectDetails(
             additionalDependencies = listOf(),
             author = conf.author,
             version = conf.projectVersion,
-            kotlinVer = conf.kotlinVer
+            kotlinVer = conf.kotlinVer,
+            kotlinCoroutineVer = conf.coroutineVer
         )
     }
 }
