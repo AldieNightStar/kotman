@@ -10,6 +10,8 @@ import haxidenti.kotman.util.ProjectUtil.mkdirMust
 import haxidenti.kotman.util.createZip
 import java.io.File
 
+private val supportedExtensions = listOf("kt", "kts", "java")
+
 object Project {
     fun generate(details: ProjectDetails) {
         val projectDir = File(".").mkdirMust(details.projectName)
@@ -104,9 +106,10 @@ object Project {
         val sources = projectFolder.resolve("src")
         if (!sources.isDirectory) throw IllegalStateException("Can't find src folder")
         val megabyte = 1024 * 1024
-        for (file in projectFolder.walkTopDown()) {
+        for (file in sources.walkTopDown()) {
             if (!file.isFile) continue
             if (file.length() > megabyte) continue
+            if (file.extension !in supportedExtensions) continue
             val commands = file.readLines()
                 .map { it.trim() }
                 .filter { it.startsWith("// generate:") }

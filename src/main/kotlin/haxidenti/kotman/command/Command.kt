@@ -94,7 +94,7 @@ internal object Command {
 
     private fun List<String>.req(n: Int): List<String> {
         if (size < n) {
-            throw IllegalArgumentException("Argument size if less than $n")
+            throw IllegalArgumentException("Argument size is less than $n")
         }
         return this
     }
