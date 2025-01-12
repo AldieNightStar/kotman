@@ -6,6 +6,7 @@ import haxidenti.kotman.dto.ProjectDetails
 import haxidenti.kotman.util.GradleUtil.genDependenciesSection
 import haxidenti.kotman.util.GradleUtil.genPluginsSection
 import java.io.File
+import java.nio.charset.Charset
 
 object Gradle {
 
@@ -54,6 +55,8 @@ object Gradle {
             """.trimIndent()
         )
         lines.add(genDependenciesSection(details.additionalDependencies))
+
+
         lines.add(
             """
             
@@ -64,6 +67,15 @@ object Gradle {
             tasks.test {
                 useJUnitPlatform()
             }
+            
+            """.trimIndent()
+        )
+
+        // Add task for CLI
+        lines.add(cliTask())
+
+        lines.add(
+            """
             
             publishing {
                 publications {
@@ -83,4 +95,9 @@ object Gradle {
     }
 
     private fun getMainClassName(packageName: String) = "$packageName.MainKt"
+
+    private fun cliTask(): String {
+        val loader = this.javaClass.classLoader
+        return loader.getResourceAsStream("cli_task.kts")!!.readAllBytes().toString(Charset.defaultCharset())
+    }
 }
