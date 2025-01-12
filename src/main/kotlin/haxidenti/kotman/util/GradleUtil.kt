@@ -5,6 +5,7 @@ const val JUPITER_ENGINE_VER = "5.8.1"
 object GradleUtil {
     fun genPluginsSection(kotlinVer: String) = """
         plugins {
+            java
             kotlin("jvm") version "$kotlinVer"
             id("com.github.johnrengelman.shadow") version "8.1.1"
             id("application")

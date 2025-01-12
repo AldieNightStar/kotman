@@ -27,6 +27,10 @@ object Project {
         projectDir.mkdirMust("src/main/resources/$packagePath")
         projectDir.mkdirMust("src/test/kotlin/$packagePath")
 
+        // Create Java directories
+        projectDir.mkdirMust("src/main/java/$packagePath")
+        projectDir.mkdirMust("src/test/java/$packagePath")
+
         // Write Main.kt file (Main class)
         val mainKtFile = mainClassFolderPath.resolve("Main.kt")
 
