@@ -12,7 +12,8 @@ tasks.register("cli") {
         val rootScript = File(rootJar.nameWithoutExtension)
         rootScript.delete()
         rootScript.writeText(
-            "SCRIPTPATH=\"\$( cd -- \"\$(dirname \"\$0\")\" >/dev/null 2>&1 ; pwd -P )\"\n"
+            "#!/bin/bash\n"
+            + "SCRIPTPATH=\"\$( cd -- \"\$(dirname \"\$0\")\" >/dev/null 2>&1 ; pwd -P )\"\n"
             + "java -cp \"\$SCRIPTPATH/${rootJar.name}\" $MAIN_CLASS \"\$@\""
         )
         rootJar.delete()
