@@ -18,6 +18,5 @@ tasks.register("cli") {
         )
         rootJar.delete()
         jar.copyTo(rootJar)
-        File("build").deleteRecursively()
     }
 }
