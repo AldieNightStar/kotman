@@ -29,8 +29,8 @@ object Gradle {
         lines.add(
             """
             val MAIN_CLASS = "$mainClass"
-            val PROJECT_NAME = "${details.projectName}"
             val AUTHOR = "${details.author}"
+            val PROJECT_NAME = "${details.projectName}"
             val VERSION = "${details.version}"
             val CORO_VER = "${details.kotlinCoroutineVer}"
             
