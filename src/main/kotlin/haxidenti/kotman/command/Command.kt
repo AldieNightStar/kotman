@@ -17,7 +17,7 @@ internal object Command {
                 }
 
                 "config" -> {
-                    dispatchConfig(c.userConfig, arguments)
+                    dispatchConfig(c, arguments)
                 }
 
                 "new" -> {
@@ -88,6 +88,7 @@ internal object Command {
         kotman config version [version]   - Set new version for future projects
         kotman config kotlinver [version] - Set new kotlin version for future projects
         kotman config corover [version]   - Set new kotlin coroutines version
+        kotman config reset               - Reset all the configuration
         
         HaxiDenti
     """.trimIndent()

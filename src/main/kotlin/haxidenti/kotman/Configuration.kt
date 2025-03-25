@@ -6,24 +6,24 @@ import java.io.Closeable
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
-import java.nio.file.FileSystem
-import java.nio.file.Files
-import javax.swing.filechooser.FileSystemView
 
 private val gson: Gson = Gson()
 
 class Configuration : Closeable {
     private val configFile: File
-    val userConfig: UserConfiguration
+    lateinit var userConfig: UserConfiguration
+
+    val home by lazy {
+        if (Sys.isWindows()) System.getenv("USERPROFILE") else System.getenv("HOME")
+    }
 
     constructor() {
-        val home = if (Sys.isWindows()) System.getenv("USERPROFILE") else System.getenv("HOME")
         configFile = File(home, "kotman.json")
 
         if (configFile.isFile) {
             userConfig = gson.fromJson(FileReader(configFile), UserConfiguration::class.java)
         } else {
-            userConfig = UserConfiguration()
+            cleanConfig()
         }
     }
 
@@ -31,6 +31,15 @@ class Configuration : Closeable {
         val out = FileWriter(configFile)
         gson.toJson(userConfig, out)
         out.close()
+    }
+
+    fun reset() {
+        cleanConfig()
+        configFile.delete()
+    }
+
+    private fun cleanConfig() {
+        userConfig = UserConfiguration()
     }
 }
 
