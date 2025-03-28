@@ -9,13 +9,29 @@ tasks.register("cli") {
         val jar = libs.walk()
             .firstOrNull { it.nameWithoutExtension.endsWith("-all") } ?: return@doFirst
         val rootJar = File("./${project.name}.jar")
-        val rootScript = File(rootJar.nameWithoutExtension)
-        rootScript.delete()
-        rootScript.writeText(
-            "#!/bin/bash\n"
-            + "SCRIPTPATH=\"\$( cd -- \"\$(dirname \"\$0\")\" >/dev/null 2>&1 ; pwd -P )\"\n"
-            + "java -cp \"\$SCRIPTPATH/${rootJar.name}\" $MAIN_CLASS \"\$@\""
-        )
+
+        // Generate bash file
+        val rootScriptSh = File(rootJar.nameWithoutExtension)
+        rootScriptSh.delete()
+        rootScriptSh.writeText("""
+            #!/bin/bash
+            SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+            java -cp "${"$"}SCRIPTPATH/${rootJar.name}" $MAIN_CLASS "$@"
+        """.trimIndent())
+
+        // Generate bat file
+        val rootScriptBat = File(rootJar.nameWithoutExtension + ".bat")
+        rootScriptBat.delete()
+        rootScriptBat.writeText("""
+            @echo off
+            setlocal
+
+            set SCRIPTPATH=%~dp0
+            java -cp "%SCRIPTPATH%${rootJar.name}" $MAIN_CLASS %*
+
+            endlocal
+        """.trimIndent())
+
         rootJar.delete()
         jar.copyTo(rootJar)
     }
