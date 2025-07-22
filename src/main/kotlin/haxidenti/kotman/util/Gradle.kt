@@ -77,6 +77,11 @@ object Gradle {
         lines.add(
             """
             
+            // Comment this if you want not to include sources
+            java {
+                withSourcesJar()
+            }
+            
             publishing {
                 publications {
                     create<MavenPublication>("maven") {
