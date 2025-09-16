@@ -4,7 +4,7 @@ val AUTHOR = "HaxiDenti"
 val VERSION = "1.0.0"
 
 plugins {
-    kotlin("jvm") version "2.1.20"
+    kotlin("jvm") version "2.2.20"
     `maven-publish`
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("application")
