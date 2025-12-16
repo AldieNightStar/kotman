@@ -20,12 +20,12 @@ object GradleUtil {
             "\n    " + additional.joinToString("\n    ")
 
         // Generate
-        val string = """
+        val string = $$"""
         dependencies {
             implementation(kotlin("stdlib-jdk8"))
-            testImplementation("org.junit.jupiter:junit-jupiter-api:$JUPITER_ENGINE_VER")
-            testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$JUPITER_ENGINE_VER")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${"$"}CORO_VER")$deps
+            testImplementation("org.junit.jupiter:junit-jupiter-api:$$JUPITER_ENGINE_VER")
+            testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$$JUPITER_ENGINE_VER")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$CORO_VER")$$deps
         }
         """.trimIndent()
 

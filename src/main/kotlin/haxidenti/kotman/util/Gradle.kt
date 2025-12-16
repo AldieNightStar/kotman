@@ -29,10 +29,12 @@ object Gradle {
         lines.add(
             """
             val MAIN_CLASS = "$mainClass"
+            val CORO_VER = "${details.kotlinCoroutineVer}"
+            
             val AUTHOR = "${details.author}"
             val PROJECT_NAME = "${details.projectName}"
             val VERSION = "${details.version}"
-            val CORO_VER = "${details.kotlinCoroutineVer}"
+            
             
         """.trimIndent()
         )
@@ -47,8 +49,8 @@ object Gradle {
             version = VERSION
             
             repositories {
-                mavenCentral()
                 mavenLocal()
+                mavenCentral()
                 maven { url = uri("https://jitpack.io") }
             }
             
