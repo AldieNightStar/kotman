@@ -61,10 +61,6 @@ object Gradle {
 
         lines.add(
             """
-            
-            application {
-                mainClass.set(MAIN_CLASS)
-            }
         
             tasks.test {
                 useJUnitPlatform()
