@@ -11,7 +11,6 @@ object GitUtil {
             .filter { it.listFiles()?.isEmpty() ?: false }
             .forEach {
                 it.addFile(".gitkeep", "<3")
-                println("KEEP in ${it.canonicalFile}")
             }
     }
 }
