@@ -1,6 +1,7 @@
 package haxidenti.kotman
 
 import haxidenti.kotman.dto.ProjectDetails
+import haxidenti.kotman.util.GitUtil
 import haxidenti.kotman.util.Gradle
 import haxidenti.kotman.util.ProjectUtil.addFile
 import haxidenti.kotman.util.ProjectUtil.generateScript
@@ -49,6 +50,8 @@ object Project {
         """.trimIndent()
         )
 
+        // Add .gitkeep files for empty directories
+        GitUtil.addGitKeepFiles(projectDir)
     }
 
     fun generateCli(projectFolder: File) {
