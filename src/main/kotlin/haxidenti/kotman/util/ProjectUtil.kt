@@ -2,6 +2,7 @@ package haxidenti.kotman.util
 
 import java.io.File
 import java.nio.file.Files
+import kotlin.io.path.createParentDirectories
 
 internal object ProjectUtil {
     fun generateScript(jarName: String, mainClassName: String) = """ 
@@ -11,7 +12,7 @@ internal object ProjectUtil {
         """.trimIndent()
 
     fun File.addFile(name: String, content: String) {
-        val path = File(this, name).toPath()
+        val path = File(this, name).toPath().createParentDirectories()
         val bytes = content.toByteArray()
         try {
             Files.write(path, bytes)

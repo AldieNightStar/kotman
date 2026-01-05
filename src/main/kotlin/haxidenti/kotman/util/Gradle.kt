@@ -9,6 +9,7 @@ import java.io.File
 import java.nio.charset.Charset
 
 object Gradle {
+    private const val GRADLE_VER = "8.14.3"
 
     fun runGradle(workingFolder: File, gradleCommands: List<String>): Boolean {
         val gradleName = if (isWindows()) {
@@ -102,4 +103,14 @@ object Gradle {
         val loader = this.javaClass.classLoader
         return loader.getResourceAsStream("cli_task.kts")!!.readAllBytes().toString(Charset.defaultCharset())
     }
+
+    fun generateGradleWrapperConfig() = """
+        distributionBase=GRADLE_USER_HOME
+        distributionPath=wrapper/dists
+        distributionUrl=https\://services.gradle.org/distributions/gradle-$GRADLE_VER-bin.zip
+        networkTimeout=10000
+        validateDistributionUrl=true
+        zipStoreBase=GRADLE_USER_HOME
+        zipStorePath=wrapper/dists
+    """.trimIndent()
 }

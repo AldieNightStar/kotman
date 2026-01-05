@@ -20,6 +20,7 @@ object Project {
 
         projectDir.addFile("build.gradle.kts", Gradle.generateProjectGradle(details))
         projectDir.addFile("settings.gradle.kts", Gradle.generateProjectSettings(details.projectName))
+        projectDir.addFile("gradle/wrapper/gradle-wrapper.properties", Gradle.generateGradleWrapperConfig())
 
         projectDir.addFile(".gitignore", gitIgnore(details.projectName))
 
