@@ -1,23 +1,12 @@
 package haxidenti.kotman.dto
 
+import haxidenti.kotman.Constants
+
 data class ProjectDetails(
     val projectName: String,
-    val author: String,
-    val version: String,
     val packageName: String,
-    val kotlinVer: String,
-    val additionalDependencies: List<String>,
-    val kotlinCoroutineVer: String,
-) {
-    companion object {
-        fun fromConfig(projectName: String, packageName: String, conf: UserConfiguration) = ProjectDetails(
-            projectName = projectName,
-            packageName = packageName,
-            additionalDependencies = listOf(),
-            author = conf.author,
-            version = conf.projectVersion,
-            kotlinVer = conf.kotlinVer,
-            kotlinCoroutineVer = conf.coroutineVer
-        )
-    }
-}
+    val author: String = Constants.AUTHOR,
+    val version: String = Constants.VERSION,
+    val kotlinVer: String = Constants.KOTLIN_VER,
+    val additionalDependencies: List<String> = listOf(),
+)

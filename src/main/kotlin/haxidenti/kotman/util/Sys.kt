@@ -1,4 +1,4 @@
-package haxidenti.kotman
+package haxidenti.kotman.util
 
 import java.io.File
 
@@ -33,6 +33,6 @@ object Sys {
         val args = regex.findAll(line)
             .map { it.value.trim() }
             .toList()
-        return Sys.runShell(workingFolder, args)
+        return runShell(workingFolder, args)
     }
 }
