@@ -46,7 +46,7 @@ object Project {
         modDir.resolve("src/test/java/$packagePath").also { it.mkdirs() }
 
         // Build file
-        modDir.resolve("build.gradle.kts").writeText(generateBuildFile())
+        modDir.resolve("build.gradle.kts").writeText(generateBuildFile(name))
 
         // Append include
         settings.appendText("include(\"$name\")\n")
@@ -54,7 +54,7 @@ object Project {
         return true
     }
 
-    fun generateBuildFile(): String {
+    fun generateBuildFile(name: String): String {
         return """
             plugins {
                 alias(libs.plugins.kotlin.jvm)
@@ -62,8 +62,7 @@ object Project {
                 java
             }
 
-            group = "$DEFAULT_AUTHOR"
-            version = "1.0.0"
+            val REFERENCE = "$DEFAULT_AUTHOR:$name:1.0.0"
 
             repositories {
                 mavenLocal()
@@ -81,18 +80,24 @@ object Project {
             tasks.test {
                 useJUnitPlatform()
             }
-            
+
             publishing {
                 publications {
                     create<MavenPublication>("maven") {
                         from(components["java"])
+                        groupId = REFERENCE.split(":")[0]
+                        artifactId = REFERENCE.split(":")[1]
+                        version = REFERENCE.split(":")[2]
                     }
                 }
             }
-            
+
             java {
                 withSourcesJar()
             }
+
+            group = REFERENCE.split(":")[0]
+            version = REFERENCE.split(":")[2]
         """.trimIndent()
     }
 }
