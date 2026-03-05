@@ -3,12 +3,15 @@ package haxidenti.kotman
 import java.io.File
 
 const val DEFAULT_AUTHOR = "haxidenti"
+const val APP_MOD_NAME = "app"
+const val FILE_BUILD_GRADLE = "build.gradle.kts"
 
 object Project {
     fun createProject(workdir: File, name: String) {
-        val dir = workdir.resolve(name).also { it.mkdirs() }
-        if (!runGradleInit(dir, name)) throw RuntimeException("Failed to initialize project")
-        addGradleModule(dir, "core", name)
+        val projectDir = workdir.resolve(name).also { it.mkdirs() }
+        if (!runGradleInit(projectDir, name)) throw RuntimeException("Failed to initialize project")
+        addGradleModule(projectDir, "core", name)
+        setupDistribution(projectDir)
     }
 
     fun runGradleInit(dir: File, name: String): Boolean {
@@ -46,7 +49,7 @@ object Project {
         modDir.resolve("src/test/java/$packagePath").also { it.mkdirs() }
 
         // Build file
-        modDir.resolve("build.gradle.kts").writeText(generateBuildFile(name))
+        modDir.resolve(FILE_BUILD_GRADLE).writeText(generateBuildFile(name))
 
         // Append include
         settings.appendText("include(\"$name\")\n")
@@ -99,5 +102,28 @@ object Project {
             group = REFERENCE.split(":")[0]
             version = REFERENCE.split(":")[2]
         """.trimIndent()
+    }
+
+    fun setupDistribution(dir: File) {
+        val modDir = dir.resolve(APP_MOD_NAME)
+        if (!modDir.isDirectory) throw RuntimeException("$APP_MOD_NAME is not a directory")
+
+        // Create data directory
+        val dataDir = modDir.resolve("data").also { it.mkdirs() }
+
+        // Some file to keep the structure
+        dataDir.resolve(".gitkeep").writeText("<3")
+
+        // Add some text to build gradle
+        val buildFile = modDir.resolve(FILE_BUILD_GRADLE)
+        buildFile.appendText("""
+            
+            distributions {
+                main {
+                    contents { from("data") }
+                }
+            }
+            
+        """.trimIndent())
     }
 }
