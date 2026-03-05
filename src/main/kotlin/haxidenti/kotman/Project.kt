@@ -65,7 +65,14 @@ object Project {
                 java
             }
 
-            val REFERENCE = "$DEFAULT_AUTHOR:$name:1.0.0"
+
+            // Reference string
+            val REFERENCE = "$DEFAULT_AUTHOR:$name:1.0.0".split(":")
+            
+            // Parsing the reference
+            val GROUP = REFERENCE[0]
+            val ARTIFACT = REFERENCE[1]
+            val VERSION = REFERENCE[2]
 
             repositories {
                 mavenLocal()
@@ -88,9 +95,9 @@ object Project {
                 publications {
                     create<MavenPublication>("maven") {
                         from(components["java"])
-                        groupId = REFERENCE.split(":")[0]
-                        artifactId = REFERENCE.split(":")[1]
-                        version = REFERENCE.split(":")[2]
+                        groupId = GROUP
+                        artifactId = ARTIFACT
+                        version = VERSION
                     }
                 }
             }
@@ -99,8 +106,8 @@ object Project {
                 withSourcesJar()
             }
 
-            group = REFERENCE.split(":")[0]
-            version = REFERENCE.split(":")[2]
+            group = GROUP
+            version = VERSION
         """.trimIndent()
     }
 
