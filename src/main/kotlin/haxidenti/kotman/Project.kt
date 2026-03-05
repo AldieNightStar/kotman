@@ -65,7 +65,6 @@ object Project {
                 java
             }
 
-
             // Reference string
             val REFERENCE = "$DEFAULT_AUTHOR:$name:1.0.0".split(":")
             
