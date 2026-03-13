@@ -5,6 +5,7 @@ import java.io.File
 const val DEFAULT_AUTHOR = "haxidenti"
 const val APP_MOD_NAME = "app"
 const val FILE_BUILD_GRADLE = "build.gradle.kts"
+const val DIST_NAME = "release"
 
 object Project {
     fun createProject(workdir: File, name: String) {
@@ -12,6 +13,9 @@ object Project {
         if (!runGradleInit(projectDir, name)) throw RuntimeException("Failed to initialize project")
         addGradleModule(projectDir, "core", name)
         setupDistribution(projectDir)
+
+        // Add git keeps
+        addGitKeeps(projectDir)
     }
 
     fun runGradleInit(dir: File, name: String): Boolean {
@@ -53,6 +57,9 @@ object Project {
 
         // Append include
         settings.appendText("include(\"$name\")\n")
+
+        // Add git keeps
+        addGitKeeps(modDir)
 
         return true
     }
@@ -117,9 +124,6 @@ object Project {
         // Create data directory
         val dataDir = modDir.resolve("data").also { it.mkdirs() }
 
-        // Some file to keep the structure
-        dataDir.resolve(".gitkeep").writeText("<3")
-
         // Add some text to build gradle
         val buildFile = modDir.resolve(FILE_BUILD_GRADLE)
         buildFile.appendText("""
@@ -131,5 +135,61 @@ object Project {
             }
             
         """.trimIndent())
+    }
+
+    fun addGitKeeps(root: File) {
+        if (!root.isDirectory) return
+        root.walkBottomUp()
+            .filter { it.isDirectory }
+            .filter { it.list()?.isEmpty() ?: false }
+            .forEach {
+            it.resolve(".gitkeep").writeText("<3")
+        }
+    }
+
+    fun makeDist(projDir: File, name: String) {
+        if (!runGradle(projDir, "install"))
+            Err.fail("Distribution failed. `gradle install` failed to run")
+
+        val appModDir = projDir.resolve(APP_MOD_NAME)
+        if (!appModDir.isDirectory)
+            Err.fail("Can't be distributed. No such directory: $appModDir")
+
+        val buildDir = appModDir.resolve("build/install/$APP_MOD_NAME")
+        if (!buildDir.isDirectory) Err.notExist(buildDir)
+
+        // Resolve bin files. Need to rename them later
+        val binDir = buildDir.resolve("bin")
+        val binUnix = binDir.resolve(APP_MOD_NAME)
+        val binWindows = binDir.resolve("$APP_MOD_NAME.bat")
+
+        // Rename bin files
+        val newBinUnix = binDir.resolve(name)
+        val newBinWindows = binDir.resolve("$name.bat")
+        if (!binUnix.renameTo(newBinUnix)) Err.fail("Can't rename $binUnix into $newBinUnix")
+        if (!binWindows.renameTo(newBinWindows)) Err.fail("Can't rename $binWindows into $newBinWindows")
+
+        // Create directory and remove previous if there was some
+        val outDir = projDir.resolve(DIST_NAME)
+        if (outDir.isDirectory) outDir.deleteRecursively()
+        outDir.mkdirs()
+
+        // Copy everything to output
+        if (!buildDir.copyRecursively(outDir)) Err.fail("Can't distribute into $DIST_NAME")
+
+        // Clean build directory
+        buildDir.deleteRecursively()
+    }
+
+    fun runGradle(projDir: File, task: String): Boolean {
+        val sep = File.separatorChar
+        return Sys.runShell(projDir, listOf(".${sep}gradlew", task))
+    }
+
+    fun hasGradle(projectDir: File): Boolean {
+        if (!projectDir.isDirectory) return false
+        val gradlewUnix = projectDir.resolve("gradlew")
+        val gradlewWindows = projectDir.resolve("gradlew.bat")
+        return gradlewUnix.isFile || gradlewWindows.isFile
     }
 }
