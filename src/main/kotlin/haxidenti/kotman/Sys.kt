@@ -7,7 +7,7 @@ object Sys {
         val command = if (isWindows())
             listOf("cmd", "/c") + arguments
         else
-            listOf("bash", "-c") + arguments
+            listOf("bash", "-c") + arguments // TODO is it ok on linux?
 
         try {
             val process = ProcessBuilder(command)
@@ -27,12 +27,4 @@ object Sys {
         .getProperty("os.name")
         .lowercase()
         .contains("windows")
-
-    fun runCommand(workingFolder: File, line: String): Boolean {
-        val regex = Regex("(\"[^\"]*\"|[^\\s]+)")
-        val args = regex.findAll(line)
-            .map { it.value.trim() }
-            .toList()
-        return Sys.runShell(workingFolder, args)
-    }
 }
