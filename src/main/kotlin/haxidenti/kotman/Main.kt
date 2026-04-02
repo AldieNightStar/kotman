@@ -10,6 +10,7 @@ fun main(args: Array<String>) {
               
             Inside project:
               kotman mod [name] - Creates new module inside gradle project
+              kotman dist       - Distribute files into APP directory
         """.trimIndent())
         return
     }
@@ -35,6 +36,14 @@ fun runCmd(cmd: String, args: List<String>) {
             if (!Project.addGradleModule(workDir, args[0], projectName)) {
                 println("[!] Can't add gradle module. Are you inside of the gradle root project?")
             }
+        }
+        "dist" -> {
+            if (!Project.hasGradle(workDir)) {
+                println("[!] Not a gradle directory. Make sure gradlew is present")
+                return
+            }
+            val projectName = File(workDir.canonicalPath).name
+            Project.makeDist(workDir.canonicalFile, projectName)
         }
         else -> {
             println("[!] Unknown command: $cmd")
