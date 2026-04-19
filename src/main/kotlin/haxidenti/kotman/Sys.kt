@@ -7,7 +7,7 @@ object Sys {
         val command = if (isWindows())
             listOf("cmd", "/c") + arguments
         else
-            listOf("bash", "-c") + arguments // TODO is it ok on linux?
+            arguments
 
         try {
             val process = ProcessBuilder(command)

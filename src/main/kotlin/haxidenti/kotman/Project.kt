@@ -122,7 +122,7 @@ object Project {
         if (!modDir.isDirectory) throw RuntimeException("$APP_MOD_NAME is not a directory")
 
         // Create data directory
-        val dataDir = modDir.resolve("data").also { it.mkdirs() }
+        modDir.resolve("data").also { it.mkdirs() }
 
         // Add some text to build gradle
         val buildFile = modDir.resolve(FILE_BUILD_GRADLE)
@@ -158,16 +158,11 @@ object Project {
         val buildDir = appModDir.resolve("build/install/$APP_MOD_NAME")
         if (!buildDir.isDirectory) Err.notExist(buildDir)
 
-        // Resolve bin files. Need to rename them later
-        val binDir = buildDir.resolve("bin")
-        val binUnix = binDir.resolve(APP_MOD_NAME)
-        val binWindows = binDir.resolve("$APP_MOD_NAME.bat")
-
-        // Rename bin files
-        val newBinUnix = binDir.resolve(name)
-        val newBinWindows = binDir.resolve("$name.bat")
-        if (!binUnix.renameTo(newBinUnix)) Err.fail("Can't rename $binUnix into $newBinUnix")
-        if (!binWindows.renameTo(newBinWindows)) Err.fail("Can't rename $binWindows into $newBinWindows")
+        // Rename files
+        renameAll(buildDir.resolve("bin"),
+            APP_MOD_NAME to name,
+            "$APP_MOD_NAME.bat" to "$name.bat"
+        )
 
         // Create directory and remove previous if there was some
         val outDir = projDir.resolve(DIST_NAME)
@@ -191,5 +186,15 @@ object Project {
         val gradlewUnix = projectDir.resolve("gradlew")
         val gradlewWindows = projectDir.resolve("gradlew.bat")
         return gradlewUnix.isFile || gradlewWindows.isFile
+    }
+
+    fun renameAll(parent: File, vararg params: Pair<String, String>) {
+        for ((input, target) in params) {
+            val inputFile = parent.resolve(input)
+            val targetFile = parent.resolve(target)
+            if (!inputFile.renameTo(targetFile)) {
+                Err.fail("Can't rename $input into $target")
+            }
+        }
     }
 }
