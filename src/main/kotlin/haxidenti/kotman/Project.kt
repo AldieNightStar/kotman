@@ -1,6 +1,9 @@
 package haxidenti.kotman
 
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import kotlin.random.Random
 
 const val DEFAULT_AUTHOR = "haxidenti"
 const val APP_MOD_NAME = "app"
@@ -147,7 +150,7 @@ object Project {
             .filter { it.isDirectory }
             .filter { it.list()?.isEmpty() ?: false }
             .forEach {
-                it.resolve(".gitkeep").writeText("<3")
+                it.resolve(".gitkeep${Random.nextInt(0xFFFF)}").writeText("<3")
             }
     }
 
@@ -172,10 +175,9 @@ object Project {
         // Create directory and remove previous if there was some
         val outDir = projDir.resolve(DIST_NAME)
         if (outDir.isDirectory) outDir.deleteRecursively()
-        outDir.mkdirs()
 
         // Copy everything to output
-        if (!buildDir.copyRecursively(outDir)) Err.fail("Can't distribute into $DIST_NAME")
+        Files.move(buildDir.toPath(), outDir.toPath(), StandardCopyOption.REPLACE_EXISTING)
 
         // Clean build directory
         buildDir.deleteRecursively()
