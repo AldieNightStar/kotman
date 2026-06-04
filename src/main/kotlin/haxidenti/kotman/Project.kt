@@ -22,6 +22,7 @@ object Project {
 
         // Add git ignore values
         addGitIgnoreLines(projectDir, arrayOf(
+            "",
             "# Release folder",
             "release",
         ))
