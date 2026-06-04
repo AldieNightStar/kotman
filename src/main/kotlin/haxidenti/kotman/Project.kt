@@ -19,6 +19,11 @@ object Project {
 
         // Add git keeps
         addGitKeeps(projectDir)
+
+        // Add git ignore values
+        addGitIgnoreLines(projectDir, arrayOf(
+            "release",
+        ))
     }
 
     fun runGradleInit(dir: File, name: String): Boolean {
@@ -203,5 +208,15 @@ object Project {
                 Err.fail("Can't rename $input into $target")
             }
         }
+    }
+
+    fun addGitIgnoreLines(dir: File, newLines: Array<String>) {
+        val file = dir.resolve(".gitignore")
+
+        val lines = file.readLines()
+            .toMutableList()
+            .also { it.addAll(newLines) }
+
+        file.writeText(lines.joinToString(separator = "\n"))
     }
 }
