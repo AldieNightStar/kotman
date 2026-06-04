@@ -19,20 +19,22 @@ object Project {
     }
 
     fun runGradleInit(dir: File, name: String): Boolean {
-        return Sys.runShell(dir,listOf(
-            "gradle",
-            "init",
-            "--type", "kotlin-application",
-            "--dsl", "kotlin",
-            "--project-name", name,
-            "--package", "$DEFAULT_AUTHOR.$name",
-            "--test-framework", "junit-jupiter",
-            "--java-version", "24",
-            "--no-split-project",
-            "--no-incubating",
-            "--no-daemon",
-            "--console=plain",
-        ))
+        return Sys.runShell(
+            dir, listOf(
+                "gradle",
+                "init",
+                "--type", "kotlin-application",
+                "--dsl", "kotlin",
+                "--project-name", name,
+                "--package", "$DEFAULT_AUTHOR.$name",
+                "--test-framework", "junit-jupiter",
+                "--java-version", "24",
+                "--no-split-project",
+                "--no-incubating",
+                "--no-daemon",
+                "--console=plain",
+            )
+        )
     }
 
     fun addGradleModule(dir: File, name: String, projectName: String): Boolean {
@@ -126,7 +128,8 @@ object Project {
 
         // Add some text to build gradle
         val buildFile = modDir.resolve(FILE_BUILD_GRADLE)
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             
             distributions {
                 main {
@@ -134,7 +137,8 @@ object Project {
                 }
             }
             
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     fun addGitKeeps(root: File) {
@@ -143,8 +147,8 @@ object Project {
             .filter { it.isDirectory }
             .filter { it.list()?.isEmpty() ?: false }
             .forEach {
-            it.resolve(".gitkeep").writeText("<3")
-        }
+                it.resolve(".gitkeep").writeText("<3")
+            }
     }
 
     fun makeDist(projDir: File, name: String) {
@@ -159,7 +163,8 @@ object Project {
         if (!buildDir.isDirectory) Err.notExist(buildDir)
 
         // Rename files
-        renameAll(buildDir.resolve("bin"),
+        renameAll(
+            buildDir.resolve("bin"),
             APP_MOD_NAME to name,
             "$APP_MOD_NAME.bat" to "$name.bat"
         )
