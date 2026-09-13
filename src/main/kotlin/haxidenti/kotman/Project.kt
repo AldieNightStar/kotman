@@ -52,6 +52,7 @@ object Project {
 
         appendGradleFile(
             gradleFile,
+            getGradleHeader(name),
             getGradleSettingsPlugins(isApp),
             getGradleSettingsRepos(),
             getGradleSettingsDeps(isApp),
@@ -59,12 +60,14 @@ object Project {
         )
     }
 
-    fun appendGradleFile(file: File, plugins: String, repos: String, deps: String, global: String) {
+    fun appendGradleFile(file: File, header: String, plugins: String, repos: String, deps: String, global: String) {
         val text = file.readLines()
         var findPlugins = true
         var findRepos = true
         var findDeps = true
         val newText = buildList {
+            add(header)
+            add("")
             for (line in text) {
                 add(line)
                 if (findPlugins && line.startsWith("plugins {")) {
@@ -87,11 +90,23 @@ object Project {
         file.writeText(newText.joinToString("\n"))
     }
 
-    fun getGradleSettingsPlugins(isApp: Boolean) = buildString {
-        if (isApp) {
-            appendLine("application")
+    fun getGradleHeader(name: String): String {
+        return """
+            val FULL_NAME = "$DEFAULT_AUTHOR:$name:1.0.0".split(":")
+            val AUTHOR = FULL_NAME[0]
+            val PROJECT_NAME = FULL_NAME[1]
+            val VERSION = FULL_NAME[2]
+            
+            group = AUTHOR
+            version = VERSION
+        """.trimIndent()
+    }
+
+    fun getGradleSettingsPlugins(isApp: Boolean): String {
+        return if (isApp) {
+            "application"
         } else {
-            appendLine("`maven-publish`")
+            "`maven-publish`"
         }
     }
 
@@ -114,6 +129,9 @@ object Project {
                 publishing {
                     publications {
                         create<MavenPublication>("maven") {
+                            groupId = AUTHOR
+                            artifactId = PROJECT_NAME
+                            version = VERSION
                             from(components["java"])
                         }
                     }
