@@ -1,4 +1,4 @@
-package haxidenti.kotman
+package haxidenti.kotman.util
 
 import java.io.File
 

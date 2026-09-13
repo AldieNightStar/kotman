@@ -1,5 +1,6 @@
 package haxidenti.kotman
 
+import haxidenti.kotman.util.Err
 import haxidenti.kotman.util.tab
 import java.io.File
 
