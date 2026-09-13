@@ -1,224 +1,136 @@
 package haxidenti.kotman
 
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import kotlin.random.Random
 
 const val DEFAULT_AUTHOR = "haxidenti"
 const val APP_MOD_NAME = "app"
+const val LIB_MOD_NAME = "lib"
 const val FILE_BUILD_GRADLE = "build.gradle.kts"
-const val DIST_NAME = "release"
 
 object Project {
-    fun createProject(workdir: File, name: String) {
+    fun createProject(workdir: File, name: String, isApp: Boolean) {
         val projectDir = workdir.resolve(name).also { it.mkdirs() }
-        if (!runGradleInit(projectDir, name)) throw RuntimeException("Failed to initialize project")
-        addGradleModule(projectDir, "core", name)
-        setupDistribution(projectDir)
-
-        // Add git keeps
-        addGitKeeps(projectDir)
-
-        // Add git ignore values
-        addGitIgnoreLines(projectDir, arrayOf(
-            "",
-            "# Release folder",
-            "release",
-        ))
+        if (!runGradleInit(projectDir, name, isApp)) Err.fail("Can't create project")
+        setupMavenLocal(projectDir, name, isApp)
     }
 
-    fun runGradleInit(dir: File, name: String): Boolean {
+    fun runGradleInit(dir: File, name: String, isApp: Boolean): Boolean {
         return Sys.runShell(
             dir, listOf(
                 "gradle",
                 "init",
-                "--type", "kotlin-application",
+                "--type", if (isApp) "kotlin-application" else "kotlin-library",
                 "--dsl", "kotlin",
                 "--project-name", name,
-                "--package", "$DEFAULT_AUTHOR.$name",
+                "--package", getPackageName(name),
                 "--test-framework", "junit-jupiter",
                 "--java-version", "24",
                 "--no-split-project",
                 "--no-incubating",
                 "--no-daemon",
                 "--console=plain",
+                "--use-defaults",
             )
         )
     }
 
-    fun addGradleModule(dir: File, name: String, projectName: String): Boolean {
-        val modDir = dir.resolve(name).also { it.mkdirs() }
-        val settings = dir.resolve("settings.gradle.kts")
-
-        // Validate it's correct
-        if (!settings.isFile) return false
-
-        // Basic dirs
-        val packagePath = "$DEFAULT_AUTHOR/$projectName"
-        modDir.resolve("src/main/kotlin/$packagePath").also { it.mkdirs() }
-        modDir.resolve("src/main/java/$packagePath").also { it.mkdirs() }
-        modDir.resolve("src/main/resources/$packagePath").also { it.mkdirs() }
-
-        // Test dirs
-        modDir.resolve("src/test/kotlin/$packagePath").also { it.mkdirs() }
-        modDir.resolve("src/test/java/$packagePath").also { it.mkdirs() }
-
-        // Build file
-        modDir.resolve(FILE_BUILD_GRADLE).writeText(generateBuildFile(name))
-
-        // Append include
-        settings.appendText("include(\"$name\")\n")
-
-        // Add git keeps
-        addGitKeeps(modDir)
-
-        return true
+    fun resolveSubmoduleDir(projectDir: File, isApp: Boolean): File {
+        return projectDir.resolve(if (isApp) APP_MOD_NAME else LIB_MOD_NAME)
     }
 
-    fun generateBuildFile(name: String): String {
-        return """
-            plugins {
-                alias(libs.plugins.kotlin.jvm)
-                `maven-publish`
-                java
-            }
+    fun getPackageName(name: String): String {
+        return "$DEFAULT_AUTHOR.$name"
+    }
 
-            // Reference string
-            val REFERENCE = "$DEFAULT_AUTHOR:$name:1.0.0".split(":")
-            
-            // Parsing the reference
-            val GROUP = REFERENCE[0]
-            val ARTIFACT = REFERENCE[1]
-            val VERSION = REFERENCE[2]
+    fun setupMavenLocal(dir: File, name: String, isApp: Boolean) {
+        val modDir = resolveSubmoduleDir(dir, isApp)
+        val gradleFile = modDir.resolve(FILE_BUILD_GRADLE)
+            .takeIf { it.exists() }
+            ?: Err.notExist(FILE_BUILD_GRADLE)
 
-            repositories {
-                mavenLocal()
-                mavenCentral()
-            }
+        appendGradleFile(
+            gradleFile,
+            getGradleSettingsPlugins(isApp),
+            getGradleSettingsRepos(isApp),
+            getGradleSettingsDeps(isApp),
+            getGradleSettingsGlobal(isApp),
+        )
+    }
 
-            dependencies {
-                testImplementation(kotlin("test"))
-            }
+    fun appendGradleFile(file: File, plugins: String, repos: String, deps: String, global: String) {
+        val text = file.readLines()
+        var findPlugins = true
+        var findRepos = true
+        var findDeps = true
+        var removeHeadComments = true
+        val newText = buildList {
+            for (line in text) {
 
-            kotlin {
-                jvmToolchain(24)
-            }
-
-            tasks.test {
-                useJUnitPlatform()
-            }
-
-            publishing {
-                publications {
-                    create<MavenPublication>("maven") {
-                        from(components["java"])
-                        groupId = GROUP
-                        artifactId = ARTIFACT
-                        version = VERSION
+                // State for remove heading comments
+                if (removeHeadComments) {
+                    if (line.startsWith("/*") || line.startsWith(" *")) {
+                        continue
+                    } else {
+                        removeHeadComments = false
+                        continue
                     }
                 }
-            }
 
-            java {
-                withSourcesJar()
-            }
-
-            group = GROUP
-            version = VERSION
-        """.trimIndent()
-    }
-
-    fun setupDistribution(dir: File) {
-        val modDir = dir.resolve(APP_MOD_NAME)
-        if (!modDir.isDirectory) throw RuntimeException("$APP_MOD_NAME is not a directory")
-
-        // Create data directory
-        modDir.resolve("data").also { it.mkdirs() }
-
-        // Add some text to build gradle
-        val buildFile = modDir.resolve(FILE_BUILD_GRADLE)
-        buildFile.appendText(
-            """
-            
-            distributions {
-                main {
-                    contents { from("data") }
+                // Processing lines
+                add(line)
+                if (findPlugins && line.startsWith("plugins {")) {
+                    add(plugins.tab)
+                    findPlugins = false
+                }
+                if (findRepos && line.startsWith("repositories {")) {
+                    add(repos.tab)
+                    findRepos = false
+                }
+                if (findDeps && line.startsWith("dependencies {")) {
+                    add(deps.tab)
+                    findDeps = false
                 }
             }
-            
-        """.trimIndent()
-        )
+            if (findPlugins || findRepos || findDeps) Err.fail("Gradle document is different than expected")
+            add("")
+            add(global)
+        }
+        file.writeText(newText.joinToString("\n"))
     }
 
-    fun addGitKeeps(root: File) {
-        if (!root.isDirectory) return
-        root.walkBottomUp()
-            .filter { it.isDirectory }
-            .filter { it.list()?.isEmpty() ?: false }
-            .forEach {
-                it.resolve(".gitkeep${Random.nextInt(0xFFFF)}").writeText("<3")
-            }
-    }
-
-    fun makeDist(projDir: File, name: String) {
-        if (!runGradle(projDir, "install"))
-            Err.fail("Distribution failed. `gradle install` failed to run")
-
-        val appModDir = projDir.resolve(APP_MOD_NAME)
-        if (!appModDir.isDirectory)
-            Err.fail("Can't be distributed. No such directory: $appModDir")
-
-        val buildDir = appModDir.resolve("build/install/$APP_MOD_NAME")
-        if (!buildDir.isDirectory) Err.notExist(buildDir)
-
-        // Rename files
-        renameAll(
-            buildDir.resolve("bin"),
-            APP_MOD_NAME to name,
-            "$APP_MOD_NAME.bat" to "$name.bat"
-        )
-
-        // Create directory and remove previous if there was some
-        val outDir = projDir.resolve(DIST_NAME)
-        if (outDir.isDirectory) outDir.deleteRecursively()
-
-        // Copy everything to output
-        Files.move(buildDir.toPath(), outDir.toPath(), StandardCopyOption.REPLACE_EXISTING)
-
-        // Clean build directory
-        buildDir.deleteRecursively()
-    }
-
-    fun runGradle(projDir: File, task: String): Boolean {
-        val sep = File.separatorChar
-        return Sys.runShell(projDir, listOf(".${sep}gradlew", task))
-    }
-
-    fun hasGradle(projectDir: File): Boolean {
-        if (!projectDir.isDirectory) return false
-        val gradlewUnix = projectDir.resolve("gradlew")
-        val gradlewWindows = projectDir.resolve("gradlew.bat")
-        return gradlewUnix.isFile || gradlewWindows.isFile
-    }
-
-    fun renameAll(parent: File, vararg params: Pair<String, String>) {
-        for ((input, target) in params) {
-            val inputFile = parent.resolve(input)
-            val targetFile = parent.resolve(target)
-            if (!inputFile.renameTo(targetFile)) {
-                Err.fail("Can't rename $input into $target")
-            }
+    fun getGradleSettingsPlugins(isApp: Boolean) = buildString {
+        if (isApp) {
+            appendLine("application")
+        } else {
+            appendLine("`maven-publish`")
         }
     }
 
-    fun addGitIgnoreLines(dir: File, newLines: Array<String>) {
-        val file = dir.resolve(".gitignore")
+    fun getGradleSettingsRepos(isApp: Boolean): String {
+        return "mavenLocal()"
+    }
 
-        val lines = file.readLines()
-            .toMutableList()
-            .also { it.addAll(newLines) }
+    fun getGradleSettingsDeps(isApp: Boolean): String {
+        return ""
+    }
 
-        file.writeText(lines.joinToString(separator = "\n"))
+    fun getGradleSettingsGlobal(isApp: Boolean): String {
+        return if (isApp) {
+            ""
+        } else {
+            """
+                publishing {
+                    publications {
+                        create<MavenPublication>("maven") {
+                            from(components["java"])
+                        }
+                    }
+                }
+                
+                java {
+                    withSourcesJar()
+                }
+            """.trimIndent()
+        }
     }
 }

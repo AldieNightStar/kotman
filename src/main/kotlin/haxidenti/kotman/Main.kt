@@ -6,10 +6,12 @@ fun main(args: Array<String>) {
     if (args.isEmpty()) {
         println("""
             Usage:
-              kotman new [name] - Create new kotlin project
-              
-            Inside project:
-              kotman mod [name] - Creates new module inside gradle project
+              kotman lib [name]            - Create new kotlin library
+              kotman app [name]            - Create new kotlin application
+              kotman import [file.zip]     - Install zip contents into .m2/repository
+              kotman export [package_name] - Pack libs from .m2/repository into zip file
+
+            Inside project
               kotman dist       - Distribute files into APP directory
         """.trimIndent())
         return
@@ -19,31 +21,30 @@ fun main(args: Array<String>) {
 
 fun runCmd(cmd: String, args: List<String>) {
     val workDir = File("./")
+    val arg = args.getOrNull(0)
     when (cmd) {
-        "new" -> {
-            if (args.isEmpty()) {
+        "lib" -> {
+            if (arg == null) {
                 println("[!] Need name of the project to create")
                 return
             }
-            Project.createProject(workDir, args[0])
+            Project.createProject(workDir, args[0], false)
         }
-        "mod" -> {
-            if (args.isEmpty()) {
-                println("[!] Need name of the module to create")
+        "app" -> {
+            if (arg == null) {
+                println("[!] Need name of the project to create")
                 return
             }
-            val projectName = File(workDir.canonicalPath).name
-            if (!Project.addGradleModule(workDir, args[0], projectName)) {
-                println("[!] Can't add gradle module. Are you inside of the gradle root project?")
-            }
+            Project.createProject(workDir, args[0], true)
         }
         "dist" -> {
-            if (!Project.hasGradle(workDir)) {
-                println("[!] Not a gradle directory. Make sure gradlew is present")
-                return
-            }
-            val projectName = File(workDir.canonicalPath).name
-            Project.makeDist(workDir.canonicalFile, projectName)
+
+        }
+        "import" -> {
+
+        }
+        "export" -> {
+
         }
         else -> {
             println("[!] Unknown command: $cmd")
