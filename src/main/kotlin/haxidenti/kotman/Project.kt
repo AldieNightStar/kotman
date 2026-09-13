@@ -104,7 +104,7 @@ object Project {
 
     fun getGradleSettingsPlugins(isApp: Boolean): String {
         return if (isApp) {
-            "application"
+            ""
         } else {
             "`maven-publish`"
         }
