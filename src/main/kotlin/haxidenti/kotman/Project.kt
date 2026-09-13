@@ -51,7 +51,7 @@ object Project {
         appendGradleFile(
             gradleFile,
             getGradleSettingsPlugins(isApp),
-            getGradleSettingsRepos(isApp),
+            getGradleSettingsRepos(),
             getGradleSettingsDeps(isApp),
             getGradleSettingsGlobal(isApp),
         )
@@ -62,21 +62,8 @@ object Project {
         var findPlugins = true
         var findRepos = true
         var findDeps = true
-        var removeHeadComments = true
         val newText = buildList {
             for (line in text) {
-
-                // State for remove heading comments
-                if (removeHeadComments) {
-                    if (line.startsWith("/*") || line.startsWith(" *")) {
-                        continue
-                    } else {
-                        removeHeadComments = false
-                        continue
-                    }
-                }
-
-                // Processing lines
                 add(line)
                 if (findPlugins && line.startsWith("plugins {")) {
                     add(plugins.tab)
@@ -106,8 +93,11 @@ object Project {
         }
     }
 
-    fun getGradleSettingsRepos(isApp: Boolean): String {
-        return "mavenLocal()"
+    fun getGradleSettingsRepos(): String {
+        return """
+            mavenLocal()
+            maven { url = uri("https://jitpack.io") }
+        """.trimIndent()
     }
 
     fun getGradleSettingsDeps(isApp: Boolean): String {

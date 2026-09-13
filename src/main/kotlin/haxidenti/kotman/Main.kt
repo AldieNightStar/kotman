@@ -10,9 +10,6 @@ fun main(args: Array<String>) {
               kotman app [name]            - Create new kotlin application
               kotman import [file.zip]     - Install zip contents into .m2/repository
               kotman export [package_name] - Pack libs from .m2/repository into zip file
-
-            Inside project
-              kotman dist       - Distribute files into APP directory
         """.trimIndent())
         return
     }
@@ -36,9 +33,6 @@ fun runCmd(cmd: String, args: List<String>) {
                 return
             }
             Project.createProject(workDir, args[0], true)
-        }
-        "dist" -> {
-
         }
         "import" -> {
 
