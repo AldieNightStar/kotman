@@ -1,6 +1,7 @@
 package haxidenti.kotman
 
 import haxidenti.kotman.util.Err
+import haxidenti.kotman.util.GitUtil
 import haxidenti.kotman.util.tab
 import java.io.File
 
@@ -14,6 +15,7 @@ object Project {
         val projectDir = workdir.resolve(name).also { it.mkdirs() }
         if (!runGradleInit(projectDir, name, isApp)) Err.fail("Can't create project")
         setupMavenLocal(projectDir, name, isApp)
+        GitUtil.setupGitIgnore(projectDir, isApp)
     }
 
     fun runGradleInit(dir: File, name: String, isApp: Boolean): Boolean {
